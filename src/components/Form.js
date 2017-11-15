@@ -8,8 +8,8 @@ class Form extends React.Component {
 
     state = {
         newUser: [],
-        email: 'mikehohne21@hotmail.com',
-        pWord: 'giants26',
+        email: '',
+        password: '',
         errors: [],
         user: ''
     }
@@ -25,22 +25,22 @@ class Form extends React.Component {
     }
 
     signUpNewUsers = (email,password) => {
-        email = this.state.email
-        password = this.state.pWord
         firebase.auth().createUserWithEmailAndPassword(email,password)
         .then((results) => {
             console.log(results)
         })
         .catch((err) => {
+            console.log(err)
             if(err){
-               this.setState({ errors: err })
+               this.setState({ 
+                   password: '',
+                   errors: err 
+                })
             }
         })        
     }
 
     loginUsers = (email,password) => {
-        email = this.state.email,
-        password = this.state.pWord
         firebase.auth().signInWithEmailAndPassword(email, password).catch((err) => {
             if(err) {
                 this.setState({ errors: err })
@@ -48,11 +48,13 @@ class Form extends React.Component {
         })
     }
 
-    g
-
     logoutUser = () => {
         firebase.auth().signOut().then(() =>{
-            this.setState({ user: '' })
+            this.setState({ 
+                user: '',
+                email: '',
+                password: ''
+            })
         })
         .catch((err) => {
             if(err) {
@@ -61,40 +63,67 @@ class Form extends React.Component {
         })
     }
 
+    handleChange = (event) => {
+        this.setState({ 
+            [event.target.name]: event.target.value
+        })
+    }
+
+    handleSubmit = (event) => {
+        event.preventDefault()
+        const { email, password } = this.state
+        this.signUpNewUsers(email,password)
+    }
+
     render() {
+
+        const errorStyle = {
+            color: 'red'
+        };
         
-        const { email, pWord, errors, user } = this.state
+        const { email, password, errors, user } = this.state
+
+        if(user){
+            return (
+            <div>
+                <h1>Hello {user.email}</h1>
+                <Button onClick={this.logoutUser}>Logout</Button>
+            </div>
+            )
+        }
+
 
 
         return (
             <div className="container">
-            {  user && (
-               <div>
-                   <Button onClick={this.logoutUser}>Logout</Button>
-               </div>
-            )}
-                <form>
+                <form onSubmit={this.handleSubmit}>
                     <FormGroup>
                         <h1>Login or Signup</h1>
-                        { errors.code && (
-                            <h5>{errors.message}</h5>
+                        <FormControl
+                            type="text"
+                            name="email"
+                            value={email}
+                            onChange={this.handleChange}
+                            placeholder="Enter Your Email"
+                        />
+                        <FormControl
+                            type="password"
+                            name="password"
+                            value={password}
+                            onChange={this.handleChange}
+                            placeholder="Enter Your Password"
+                        />
+                        { errors && (
+                            <h5 style={errorStyle}>{errors.message}</h5>
                         )}
-                        <FormControl placeholder="Enter Your Username"/>
-                        <FormControl.Feedback />
-                        <br />
-                        <FormControl placeholder="Enter Your Password"/>
-                        <FormControl.Feedback />
-                        <br />
                         <Button
                             bsStyle="success"
                             bsSize="large"
-                            type="submit"
-                        >
+                            type="submit">
                         Login / Signup
                         </Button>
                     </FormGroup>
-                    <Button onClick={this.signUpNewUsers}>Signup</Button>
-                    <Button onClick={this.loginUsers}>Login</Button>
+                    <Button onClick={() => this.loginUsers(email,password)}>Login</Button>
                 </form>
             </div>
         )
