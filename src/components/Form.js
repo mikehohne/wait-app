@@ -11,7 +11,8 @@ class Form extends React.Component {
         email: '',
         password: '',
         errors: [],
-        user: ''
+        user: '',
+        tryCount: 0
     }
 
     componentDidMount() {
@@ -41,9 +42,13 @@ class Form extends React.Component {
     }
 
     loginUsers = (email,password) => {
+        let count = 0;
         firebase.auth().signInWithEmailAndPassword(email, password).catch((err) => {
             if(err) {
-                this.setState({ errors: err })
+                this.setState({ 
+                    password: '',
+                    errors: err
+                 })
             }
         })
     }
@@ -60,6 +65,16 @@ class Form extends React.Component {
             if(err) {
                 console.log('Cannot Logout')
             }
+        })
+    }
+
+    resetUserPassword = (email) => {
+        firebase.auth().sendPasswordResetEmail(email)
+        .then((results) => {
+            console.log('Sent?')
+            // Email sent.
+            }).catch(function(error) {
+                console.log('Not Sent!')
         })
     }
 
@@ -124,6 +139,7 @@ class Form extends React.Component {
                         </Button>
                     </FormGroup>
                     <Button onClick={() => this.loginUsers(email,password)}>Login</Button>
+                    <Button onClick={() => this.resetUserPassword(email)}>Forgot Password</Button>
                 </form>
             </div>
         )
