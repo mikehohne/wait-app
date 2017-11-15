@@ -7,30 +7,41 @@ import * as firebase from 'firebase'
 class Form extends React.Component {
 
     state = {
-        newUser: []
+        newUser: [],
+        email: 'mik@hotmail.com',
+        pWord: '1234',
+        errors: []
     }
 
     componentDidMount() {
-        firebase.initializeApp(config)
+        firebase.initializeApp(config)        
+        
     }
 
     signUpNewUsers = (email,password) => {
-        firebase.auth().createUserWithEmailAndPassword(email,password).catch((err, results) =>{
+        email = this.state.email
+        password = this.state.pWord
+        firebase.auth().createUserWithEmailAndPassword(email,password).catch((err) => {
             if(err){
-                return (
-                    <div>Error Occurred</div>
-                )
+               this.setState({ errors: err })
             }
-            this.setState({ newUser: results })
         })
     }
 
     render() {
-        return(
+        
+        const { email, pWord, errors } = this.state
+
+        console.log(errors);
+
+        return (
             <div className="container">
                 <form>
                     <FormGroup>
                         <h1>Login or Signup</h1>
+                        { errors.code && (
+                            <h5>{errors.message}</h5>
+                        )}
                         <FormControl placeholder="Enter Your Username"/>
                         <FormControl.Feedback />
                         <br />
@@ -40,10 +51,12 @@ class Form extends React.Component {
                         <Button
                             bsStyle="success"
                             bsSize="large"
-                            type="submit">
+                            type="submit"
+                        >
                         Login / Signup
                         </Button>
                     </FormGroup>
+                    <Button onClick={this.signUpNewUsers}>Test</Button>
                 </form>
             </div>
         )

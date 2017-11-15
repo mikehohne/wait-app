@@ -1,10 +1,10 @@
 const config = {
-    apiKey: process.env.FIREBASE_API_KEY,
-    authDomain: process.env.AUTH_DOMAIN,
-    databaseURL: process.env.DATABASE_URL,
-    projectId: process.env.PROJECT_URL,
-    storageBucket: process.env.STORAGE_BUCKET,
-    messagingSenderId: process.env.MESSAGING_SENDER_ID
+  apiKey: "AIzaSyDZYGA30K53xniIH5T5GATR9c8VNPEWCKA",
+  authDomain: "waiting-app-f776b.firebaseapp.com",
+  databaseURL: "https://waiting-app-f776b.firebaseio.com",
+  projectId: "waiting-app-f776b",
+  storageBucket: "",
+  messagingSenderId: "47236897045"
   };
 
   export default config
