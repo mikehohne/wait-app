@@ -8,34 +8,71 @@ class Form extends React.Component {
 
     state = {
         newUser: [],
-        email: 'mik@hotmail.com',
-        pWord: '1234',
-        errors: []
+        email: 'mikehohne21@hotmail.com',
+        pWord: 'giants26',
+        errors: [],
+        user: ''
     }
 
     componentDidMount() {
         firebase.initializeApp(config)        
-        
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                console.log(user)
+                this.setState({ user: user })
+            } 
+        })
     }
 
     signUpNewUsers = (email,password) => {
         email = this.state.email
         password = this.state.pWord
-        firebase.auth().createUserWithEmailAndPassword(email,password).catch((err) => {
+        firebase.auth().createUserWithEmailAndPassword(email,password)
+        .then((results) => {
+            console.log(results)
+        })
+        .catch((err) => {
             if(err){
                this.setState({ errors: err })
+            }
+        })        
+    }
+
+    loginUsers = (email,password) => {
+        email = this.state.email,
+        password = this.state.pWord
+        firebase.auth().signInWithEmailAndPassword(email, password).catch((err) => {
+            if(err) {
+                this.setState({ errors: err })
+            }
+        })
+    }
+
+    g
+
+    logoutUser = () => {
+        firebase.auth().signOut().then(() =>{
+            this.setState({ user: '' })
+        })
+        .catch((err) => {
+            if(err) {
+                console.log('Cannot Logout')
             }
         })
     }
 
     render() {
         
-        const { email, pWord, errors } = this.state
+        const { email, pWord, errors, user } = this.state
 
-        console.log(errors);
 
         return (
             <div className="container">
+            {  user && (
+               <div>
+                   <Button onClick={this.logoutUser}>Logout</Button>
+               </div>
+            )}
                 <form>
                     <FormGroup>
                         <h1>Login or Signup</h1>
@@ -56,7 +93,8 @@ class Form extends React.Component {
                         Login / Signup
                         </Button>
                     </FormGroup>
-                    <Button onClick={this.signUpNewUsers}>Test</Button>
+                    <Button onClick={this.signUpNewUsers}>Signup</Button>
+                    <Button onClick={this.loginUsers}>Login</Button>
                 </form>
             </div>
         )
