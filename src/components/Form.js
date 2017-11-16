@@ -1,8 +1,12 @@
 import React from 'react'
-import { FormGroup, FormControl, Button } from 'react-bootstrap'
+import { FormGroup, FormControl, Button, Image } from 'react-bootstrap'
 
 import config from './../authentication/config'
 import * as firebase from 'firebase'
+
+const FB = firebase.initializeApp(config);
+const User = firebase.auth().currentUser;
+const DB = FB.database();
 
 class Form extends React.Component {
 
@@ -12,21 +16,27 @@ class Form extends React.Component {
         password: '',
         errors: [],
         user: '',
-        tryCount: 0
+        displayName: '',
+        imageUrl: ''
     }
 
+
     componentDidMount() {
-        firebase.initializeApp(config)        
-        firebase.auth().onAuthStateChanged((user) => {
+        FB.auth().onAuthStateChanged((user) => {
             if (user) {
                 console.log(user)
-                this.setState({ user: user })
-            } 
+                this.setState({ 
+                    user: user,
+                    newEmail: user.email,
+                    displayName: user.displayName == null ? '' : user.displayName,
+                    imageUrl: user.photoURL == null ? 'http://www.precisionplasticball.com/wp-content/themes/ppb-default/img/materials-module-figure.jpg' : user.photoURL
+                 })
+            }
         })
     }
 
     signUpNewUsers = (email,password) => {
-        firebase.auth().createUserWithEmailAndPassword(email,password)
+        FB.auth().createUserWithEmailAndPassword(email,password)
         .then((results) => {
             console.log(results)
         })
@@ -43,7 +53,7 @@ class Form extends React.Component {
 
     loginUsers = (email,password) => {
         let count = 0;
-        firebase.auth().signInWithEmailAndPassword(email, password).catch((err) => {
+        FB.auth().signInWithEmailAndPassword(email, password).catch((err) => {
             if(err) {
                 this.setState({ 
                     password: '',
@@ -54,7 +64,7 @@ class Form extends React.Component {
     }
 
     logoutUser = () => {
-        firebase.auth().signOut().then(() =>{
+        FB.auth().signOut().then(() =>{
             this.setState({ 
                 user: '',
                 email: '',
@@ -69,20 +79,56 @@ class Form extends React.Component {
     }
 
     resetUserPassword = (email) => {
-        firebase.auth().sendPasswordResetEmail(email)
+        FB.auth().sendPasswordResetEmail(email)
         .then((results) => {
             console.log('Sent?')
             // Email sent.
-            }).catch(function(error) {
-                console.log('Not Sent!')
+        })
+        .catch(function(error) {
+            console.log('Not Sent!')
         })
     }
+
+    writeUserData = (userId, email, username) =>  {
+        DB.ref('users/' + userId).set({
+          email,
+          username
+        }).then(() => {
+            console.log('success');
+            this.setState({ 
+                newEmail: email,
+                username: username
+            })
+        }).catch((err) => {
+            console.error(err)
+        })
+    }
+
+    
+    userProfileUpdate = (displayName, photoURL) => {
+        firebase.auth().currentUser.updateProfile({
+            displayName,
+            photoURL
+          }).then(function() {
+            // Update successful.
+            this.setState({
+                displayName: displayName,
+                imageUrl: photoURL
+            })
+          }).catch(function(error) {
+            // An error happened.
+          });
+    }
+   
 
     handleChange = (event) => {
         this.setState({ 
             [event.target.name]: event.target.value
         })
     }
+
+
+     
 
     handleSubmit = (event) => {
         event.preventDefault()
@@ -96,18 +142,34 @@ class Form extends React.Component {
             color: 'red'
         };
         
-        const { email, password, errors, user } = this.state
+        const { email, password, errors, user, newEmail, username, displayName, imageUrl } = this.state
 
         if(user){
             return (
-            <div>
+            <div className="container">
                 <h1>Hello {user.email}</h1>
                 <Button onClick={this.logoutUser}>Logout</Button>
+                    <FormGroup>
+                        <FormControl
+                            type="text"
+                            name="displayName"
+                            value={displayName}
+                            onChange={this.handleChange}
+                            placeholder="Add a Display Name" >
+                        </FormControl>
+                        <FormControl
+                            type="text"
+                            name="imageUrl"
+                            value={imageUrl}
+                            onChange={this.handleChange}
+                            placeholder="Add an Image" >
+                        </FormControl>
+                        <Image src={imageUrl} rounded />
+                        <Button onClick={() => this.userProfileUpdate( displayName, imageUrl)}>Update Profile</Button>
+                    </FormGroup>
             </div>
             )
         }
-
-
 
         return (
             <div className="container">

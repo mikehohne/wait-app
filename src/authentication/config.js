@@ -1,3 +1,4 @@
+
 const config = {
   apiKey: "AIzaSyDZYGA30K53xniIH5T5GATR9c8VNPEWCKA",
   authDomain: "waiting-app-f776b.firebaseapp.com",
