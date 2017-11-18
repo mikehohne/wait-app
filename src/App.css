@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Spectral+SC');
+
 .App {
   text-align: center;
 }
@@ -8,7 +10,6 @@
 }
 
 .App-header {
-  background-color: #000;
   height: 175px;
   padding: 20px;
   color: white;

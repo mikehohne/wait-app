@@ -8,7 +8,9 @@
     "react": "^16.1.1",
     "react-bootstrap": "^0.31.5",
     "react-dom": "^16.1.1",
-    "react-scripts": "1.0.17"
+    "react-router-dom": "^4.2.2",
+    "react-scripts": "1.0.17",
+    "simple-react-bootstrap": "^0.2.7"
   },
   "scripts": {
     "start": "react-scripts start",

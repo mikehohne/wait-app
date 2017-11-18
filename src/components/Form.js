@@ -1,5 +1,6 @@
 import React from 'react'
-import { FormGroup, FormControl, Button, Image } from 'react-bootstrap'
+import { FormGroup, FormControl, Button, Image, Label } from 'react-bootstrap'
+import Profile from './Profile'
 
 import config from './../authentication/config'
 import * as firebase from 'firebase'
@@ -51,17 +52,7 @@ class Form extends React.Component {
         })        
     }
 
-    loginUsers = (email,password) => {
-        let count = 0;
-        FB.auth().signInWithEmailAndPassword(email, password).catch((err) => {
-            if(err) {
-                this.setState({ 
-                    password: '',
-                    errors: err
-                 })
-            }
-        })
-    }
+    
 
     logoutUser = () => {
         FB.auth().signOut().then(() =>{
@@ -109,8 +100,7 @@ class Form extends React.Component {
         firebase.auth().currentUser.updateProfile({
             displayName,
             photoURL
-          }).then(function() {
-            // Update successful.
+          }).then(function(results) {
             this.setState({
                 displayName: displayName,
                 imageUrl: photoURL
@@ -127,9 +117,6 @@ class Form extends React.Component {
         })
     }
 
-
-     
-
     handleSubmit = (event) => {
         event.preventDefault()
         const { email, password } = this.state
@@ -144,39 +131,43 @@ class Form extends React.Component {
         
         const { email, password, errors, user, newEmail, username, displayName, imageUrl } = this.state
 
+        
+        
+        const landingPageContainer = {
+            display: 'flex',
+            justifyContent: 'center'
+        }
+
+        const titleStyle = {
+            fontFamily: 'Spectral SC, serif'
+        }
+        const inputStyles = {
+            color: 'blue',
+            marginTop: '1rem',
+            textAlign: 'center'
+        }
+
         if(user){
             return (
             <div className="container">
-                <h1>Hello {user.email}</h1>
-                <Button onClick={this.logoutUser}>Logout</Button>
-                    <FormGroup>
-                        <FormControl
-                            type="text"
-                            name="displayName"
-                            value={displayName}
-                            onChange={this.handleChange}
-                            placeholder="Add a Display Name" >
-                        </FormControl>
-                        <FormControl
-                            type="text"
-                            name="imageUrl"
-                            value={imageUrl}
-                            onChange={this.handleChange}
-                            placeholder="Add an Image" >
-                        </FormControl>
-                        <Image src={imageUrl} rounded />
-                        <Button onClick={() => this.userProfileUpdate( displayName, imageUrl)}>Update Profile</Button>
-                    </FormGroup>
+                <Profile
+                    user={user}
+                    profileName={displayName}
+                    profileImage={imageUrl}
+                    logout={() => this.logoutUser()}
+                    updateProfile={(displayName,imageUrl) => this.userProfileUpdate(displayName, imageUrl)}
+                />
             </div>
             )
         }
 
         return (
-            <div className="container">
+            <div className="container" style={landingPageContainer}>
                 <form onSubmit={this.handleSubmit}>
                     <FormGroup>
-                        <h1>Login or Signup</h1>
+                        <h1 style={titleStyle}>Welcome To Waiting</h1>
                         <FormControl
+                            style={inputStyles}
                             type="text"
                             name="email"
                             value={email}
@@ -184,6 +175,7 @@ class Form extends React.Component {
                             placeholder="Enter Your Email"
                         />
                         <FormControl
+                            style={inputStyles}
                             type="password"
                             name="password"
                             value={password}
@@ -196,11 +188,10 @@ class Form extends React.Component {
                         <Button
                             bsStyle="success"
                             bsSize="large"
-                            type="submit">
+                            type="submit" >
                         Login / Signup
                         </Button>
                     </FormGroup>
-                    <Button onClick={() => this.loginUsers(email,password)}>Login</Button>
                     <Button onClick={() => this.resetUserPassword(email)}>Forgot Password</Button>
                 </form>
             </div>
